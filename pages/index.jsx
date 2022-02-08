@@ -4,7 +4,7 @@ import { render } from "react-dom";
 import "virtual:windi.css";
 function Page() {
   return (
-    <div style={{ margin: "0 auto" }}>
+    <div style={{ width: 900, margin: "0 auto" }}>
       <Foo />
     </div>
   );
