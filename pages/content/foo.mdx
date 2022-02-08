@@ -1,0 +1,255 @@
+---
+title: Data Writes
+---
+
+# Data Writes
+
+Data writes (some people call these mutations) in Remix are built on top of two fundamental web APIs: `< form >` and HTTP. We then use progressive enhancement to enable optimistic UI, loading indicators, and validation feedback--but the programming model is still built on HTML forms.
+
+When the user submits a form, Remix will:
+
+1. Call the action for the form
+2. Reload all of the data for all of the routes on the page
+
+There are a few ways to call an action and get the routes to revalidate:
+
+- [`< Form >`](../api/remix#form)
+- [`useSubmit()`](../api/remix#usesubmit)
+
+This guide only covers `< Form >`. We suggest you read the docs for the other two after this guide to get a sense of how to use them. Most of this guide applies to `useSubmit`but`useFetcher` is a bit different.
+
+## Plain HTML Forms
+
+After teaching workshops with our company <a href="https://reacttraining.com">React Training</a> for years, we've learned that a lot of newer web developers (through no fault of their own) don't actually know how `< form >` works!
+
+Since Remix `< Form >`works identically to`< form >` (with a couple extra goodies for optimistic UI etc.), we're going to brush up on plain ol' HTML forms, so you can learn both HTML and Remix at the same time.
+
+### HTML Form HTTP Verbs
+
+Native forms support two HTTP verbs: `POST` and `GET`. Remix uses these verbs to understand your intent. When it's a POST, Remix will reload all data to ensure it captures the update from the server. If it's a GET, Remix will figure out what parts of the page are changing and only fetch the data for the changing layouts, and use the cached data for the layouts that don't change. Let's take a look at both.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus. Praesent elementum facilisis leo vel fringilla. Congue mauris rhoncus aenean vel. Egestas sed tempus urna et pharetra pharetra massa massa ultricies.
+
+# Modern Forms
+
+Data writes (some people call these mutations) in modern frameworks like SolidStart, Remix and SvelteKit are built on top of two fundamental web APIs: `form` and HTTP. We then use progressive enhancement to enable optimistic UI, loading indicators, and validation feedback--but the programming model is still built on HTML forms. Lets see if we can understand how these frameworks abstract on top of html forms to give us this modern form experience.
+
+<CH.Scrollycoding>
+
+## Step 0
+
+Lets start with something familiar. A client side form written in React. write a plain HTML form in our login page. It renders two `input` elements, one for the username and one for the password. It has a button that is used to submit the form.
+
+<CH.Code>
+
+```jsx routes/login.tsx
+export default function Login() {
+  const form = useForm(
+    async ({ username, password }) => {
+      const response = await fetch(
+        "/api/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            password,
+          }),
+        }
+      );
+      if (response.ok) {
+        window.location.href = "/";
+      }
+    }
+  );
+
+  return (
+    <div>
+      <h1>Login</h1>
+      <form>
+        <input
+          type="text"
+          placeholder="Username"
+          ref={form.register}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          ref={form.register}
+        />
+        <button
+          onClick={() =>
+            form.submit({
+              username,
+              password,
+            })
+          }
+          type="button"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+  );
+}
+```
+
+```js routes/api/login.ts
+
+Hello world
+```
+
+</CH.Code>
+
+## Step 1
+
+Lets write a plain HTML form in our login page. It renders two `input` elements, one for the username and one for the password. It has a button that is used to submit the form.
+
+```jsx routes/login.tsx
+export default function Login() {
+  return (
+    <div>
+      <h1>Login</h1>
+      <form>
+        <input
+          type="text"
+          placeholder="Username"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+        />
+        <button>Login</button>
+      </form>
+    </div>
+  );
+}
+```
+
+---
+
+## Step 2
+
+Normally, an HTML form accepts a `method` prop (`GET`/`POST`) and an `action` prop that is the URL that the browser makes the request to. We will add `/login` as our action and `POST` as our method.
+
+```jsx routes/login.tsx focus=5,9
+export default function Login() {
+  return (
+    <div>
+      <h1>Login</h1>
+      <form action="/api/login" method="POST">
+        <input
+          type="text"
+          placeholder="Username"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+        />
+        <button>Login</button>
+      </form>
+    </div>
+  );
+}
+```
+
+---
+
+## Step 3
+
+Now we need to make a handler for the `/api/login` endpoint that parses formData from the request, logs in the user, and redirects to the home page. Let's say we were using a framework with API endpoints like Next.js.
+
+```jsx routes/api/login.ts
+import { motion } from "framer-motion";
+
+export default function handler(req: Request) {
+  const formData = await req.formData();
+  const username = formData.get("username");
+  const password = formData.get("password");
+
+  if (
+    username === "admin" &&
+    password === "password"
+  ) {
+    return Response.redirect("/");
+  } else {
+    return Response.redirect(
+      "/login?error='Invalid username or password'"
+    );
+  }
+}
+```
+
+---
+
+## Step 4
+
+Velit euismod in pellentesque massa placerat. Mi bibendum neque egestas congue quisque egestas diam in arcu. Nisi lacus sed viverra tellus in. Venenatis cras sed felis eget velit. Consectetur libero id faucibus nisl tincidunt.
+
+Sed blandit libero volutpat sed cras.
+
+- Nisi lacus sed viverra tellus in
+- Nibh cras pulvinar mattis nunc sed
+
+Gravida in fermentum et sollicitudin ac orci phasellus egestas tellus. Volutpat consequat mauris nunc congue nisi vitae.
+
+```jsx src/App.js focus=1,4,6:10
+import { motion } from "framer-motion";
+
+export default function App() {
+  const bg = "hsl(290, 100%, 50%)";
+  return (
+    <motion.div
+      className="swatch"
+      animate={{ backgroundColor: bg }}
+      transition={{ duration: 1 }}
+    />
+  );
+}
+```
+
+---
+
+## Step 5
+
+Velit euismod in pellentesque massa placerat. Mi bibendum neque egestas congue quisque egestas diam in arcu. Nisi lacus sed viverra tellus in.
+
+Praesent elementum facilisis leo vel fringilla est ullamcorper eget.
+
+Id aliquet risus feugiat in ante metus dictum at tempor. Sed blandit libero volutpat sed cras. Sed odio morbi quis commodo odio aenean sed adipiscing. Velit euismod in pellentesque massa placerat.
+
+Mi bibendum neque egestas congue quisque egestas diam in arcu. Nisi lacus sed viverra tellus in. Nibh cras pulvinar mattis nunc sed. Luctus accumsan tortor posuere ac ut consequat semper viverra.
+
+- Fringilla ut morbi tincidunt augue interdum velit euismod.
+- Luctus accumsan tortor posuere ac ut consequat semper viverra.
+
+Morbi quis commodo.
+
+```jsx src/App.js focus=1,4,6:10
+import { motion } from "framer-motion";
+
+export default function App() {
+  const bg = "hsl(10, 100%, 50%)";
+  return (
+    <motion.div
+      className="swatch"
+      animate={{ backgroundColor: bg }}
+      transition={{ duration: 1 }}
+    />
+  );
+}
+```
+
+</CH.Scrollycoding>
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus. Praesent elementum facilisis leo vel fringilla. Congue mauris rhoncus aenean vel. Egestas sed tempus urna et pharetra pharetra massa massa ultricies.
+
+Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus. Praesent elementum facilisis leo vel fringilla. Congue mauris rhoncus aenean vel. Egestas sed tempus urna et pharetra pharetra massa massa ultricies.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus. Praesent elementum facilisis leo vel fringilla. Congue mauris rhoncus aenean vel. Egestas sed tempus urna et pharetra pharetra massa massa ultricies.
+
+```
+
+```
