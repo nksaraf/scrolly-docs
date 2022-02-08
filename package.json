@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "next",
-    "build": "next build"
+    "dev": "vite",
+    "build": "vite build"
   },
   "type": "module",
   "dependencies": {
